@@ -1,2 +1,2 @@
 # pythonStudy
-python学习的联系
+python学习的练习
