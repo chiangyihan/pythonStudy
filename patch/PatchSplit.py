@@ -14,7 +14,7 @@ IMREAD_ANYCOLOR = 4  # 若图像通道数小于等于3，则保持原通道数�
 """
 
 
-def split(patch, overlap, img):
+def split(patch, overlap, img, outputPath):
     show_img = img.copy()
     for i in range(0, img.shape[0], patch - overlap):
         for j in range(0, img.shape[1], patch - overlap):
@@ -26,19 +26,20 @@ def split(patch, overlap, img):
                 show_img[i:i + patch, j + patch:j + patch + 10] = 255
                 print
                 'test' + '_' + str(i) + '_' + str(j) + '_patch_' + str(patch) + '_overlap_' + str(overlap) + '.png'
-                cv.imwrite(
-                    'test' + '_' + str(i) + '_' + str(j) + '_patch_' + str(patch) + '_overlap_' + str(overlap) + '.png',
+                cv.imwrite(outputPath+
+                    '/test' + '_' + str(i) + '_' + str(j) + '_patch_' + str(patch) + '_overlap_' + str(overlap) + '.png',
                     img_array, [10, 10])
-    cv.imwrite('show.png', show_img, [10, 10])
+    cv.imwrite(outputPath+'/show.png', show_img, [10, 10])
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="this script can split patch to $PWD")
-    parser.add_argument("-r", help="can read file about .tif")
+    parser.add_argument("-i", help="can read file about .tif")
     parser.add_argument("-p", help="patch size", default="1000")
-    parser.add_argument("-o", help="overlap size", default="0")
+    parser.add_argument("-o", help="output path",default="")
+    parser.add_argument("-l", help="overlap size", default="0")
     args = parser.parse_args()
 
-    img = cv.imread(args.r, -1)
+    img = cv.imread(args.i, -1)
     # img = cv.imread("/home/qiang/pic/CRC-Prim-HE-07_APPLICATION.tif", -1)
-    split(int(args.p), int(args.o), img)
+    split(int(args.p), int(args.l), img, args.o)
