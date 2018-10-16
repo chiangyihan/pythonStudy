@@ -3,6 +3,8 @@
 import cv2 as cv
 import numpy as np
 import argparse
+import os
+import json
 
 """
 # 读取图像，支持 bmp、jpg、png、tiff 等常用格式
@@ -14,32 +16,45 @@ IMREAD_ANYCOLOR = 4  # 若图像通道数小于等于3，则保持原通道数�
 """
 
 
-def split(patch, overlap, img, outputPath):
-    show_img = img.copy()
+def split(patch, overlap, imgPath, outputPath):
+    img = cv.imread(imgPath, -1)
+    json_data = {}
+    key = 0
+    json_data["file_name"] = imgPath
     for i in range(0, img.shape[0], patch - overlap):
         for j in range(0, img.shape[1], patch - overlap):
-            if patch - overlap + i <= img.shape[0] and patch - overlap + j <= img.shape[1]:
+            if patch + i <= img.shape[0] and patch + j <= img.shape[1]:
                 img_array = img[i:patch + i, j:patch + j]
-                show_img[i:i + 10, j:j + patch] = 255
-                show_img[i:i + patch, j:j + 10] = 255
-                show_img[i + patch:i + patch + 10, j:j + patch] = 255
-                show_img[i:i + patch, j + patch:j + patch + 10] = 255
-                print
-                'test' + '_' + str(i) + '_' + str(j) + '_patch_' + str(patch) + '_overlap_' + str(overlap) + '.png'
-                cv.imwrite(outputPath+
-                    '/test' + '_' + str(i) + '_' + str(j) + '_patch_' + str(patch) + '_overlap_' + str(overlap) + '.png',
-                    img_array, [10, 10])
-    cv.imwrite(outputPath+'/show.png', show_img, [10, 10])
+
+                file_name = 'test_' + str(i) + '_' + str(j) + '_patch_' + str(patch) + '_overlap_' + str(
+                    overlap) + '_.png'
+                save_path = os.path.join(outputPath, file_name)
+
+                # cv.imwrite(save_path, img_array, [10, 10])
+                json_data[str(key)] = save_path
+                key = key+1
+
+    return json_data
+
+
+def store(data):
+    with open('patch.json', 'w') as json_file:
+        json_file.write(json.dumps(data))
+
+
+def load():
+    with open('data.json') as json_file:
+        data = json.load(json_file)
+        return data
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="this script can split patch to $PWD")
+    parser = argparse.ArgumentParser(description="this script can split patch to $PWD or Specified directory")
     parser.add_argument("-i", help="can read file about .tif")
-    parser.add_argument("-p", help="patch size", default="1000")
-    parser.add_argument("-o", help="output path",default="")
-    parser.add_argument("-l", help="overlap size", default="0")
+    parser.add_argument("-p", help="patch size ,default=1000", default="1000")
+    parser.add_argument("-o", help="output path", default="")
+    parser.add_argument("-l", help="overlap size,default=0", default="0")
     args = parser.parse_args()
 
-    img = cv.imread(args.i, -1)
-    # img = cv.imread("/home/qiang/pic/CRC-Prim-HE-07_APPLICATION.tif", -1)
-    split(int(args.p), int(args.l), img, args.o)
+    data = split(int(args.p), int(args.l), args.i, args.o)
+    store(data)
