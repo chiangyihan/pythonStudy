@@ -30,7 +30,7 @@ def split(patch, overlap, imgPath, outputPath):
                     overlap) + '_.png'
                 save_path = os.path.join(outputPath, file_name)
 
-                # cv.imwrite(save_path, img_array, [10, 10])
+                cv.imwrite(save_path, img_array, [10, 10])
                 json_data[str(key)] = save_path
                 key = key+1
 
